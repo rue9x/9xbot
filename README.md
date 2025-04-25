@@ -27,6 +27,7 @@ To use the 9xbot Twitch bot, follow these steps:
     
 5. Install the required dependencies: Run the following command to install the necessary Python packages:
     ```
+    pip install wheel
     pip install -r requirements.txt
     ```
     NOTE: A custom version of playsound is used. Make sure you use requirements.txt!

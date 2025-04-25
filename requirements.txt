@@ -1,3 +1,3 @@
-playsound==1.3.0
+playsound @ git+https://github.com/rue9x/playsound_async_fix
 python-dotenv==1.1.0
 twitchAPI==4.4.0
