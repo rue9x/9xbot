@@ -69,7 +69,7 @@ WHITE = ANSI_COLORS['white']
 
 command_indicator="!"  # This is the character that indicates a command. You can change it to whatever you want.
 
-# Some rue stuff -- Note, playsound supports mp3, midi and wav. 
+# Some rue stuff -- Note, playsound supports mp3, midi and wav. TODO: Config file this.
 soundalerts = {
     "OOF" : sound_folder+"sm64_mario_oof.mp3",
     "Easy now fuzzy little man peach" : sound_folder+"easy-now-fuzzy-lil-manpeach.mp3",
@@ -90,7 +90,7 @@ Actual script stuff starts here.
 
 
 def text_to_speech(text):
-    tts = gTTS(text=text, lang=lang)
+    tts = gTTS(text=text, lang='ja',tld='us',slow=False)
     audio_file = "./speech.mp3"
     tts.save(audio_file)
     sound(audio_file,block=False)
@@ -104,12 +104,13 @@ async def command_handler(data):
     #uid = data.event.user_id
     txt = data.event.message.text
     bid = data.event.broadcaster_user_id
+    '''
     if txt=="!test":
         # Do whatever the command needs to do.
         sound(sound_folder+"test.ogg",block=False)
         await twitch.send_chat_message(broadcaster_id=bid,sender_id=bid,message="Test sound played.")
         pass
-
+    '''
 
 
 async def on_follow(data: ChannelFollowEvent):
@@ -125,7 +126,11 @@ async def on_custom_redeem(data: ChannelPointsCustomRewardRedemptionAddEvent):
     uname = data.event.user_name
     reward = data.event.reward.title
     cost = data.event.reward.cost
-   
+    bid = data.event.broadcaster_user_id
+    try:
+        rewardtext = data.event.user_input
+    except:
+        rewardtext = ""
     print(f'{YELLOW}{UNDERLINE}{BOLD}{data.event.user_name}{RESET}{YELLOW} redeemed {UNDERLINE}{BOLD}{data.event.reward.title}{RESET}{YELLOW} in {data.event.broadcaster_user_name}\'s channel! (CUSTOM){RESET}')
     
     # Simple channel point sound alert system.
@@ -139,7 +144,15 @@ async def on_custom_redeem(data: ChannelPointsCustomRewardRedemptionAddEvent):
             print (f"Reward title: {reward}")
             print (f"Reward cost: {cost}")
             await twitch.send_chat_message(broadcaster_id=data.event.broadcaster_user_id,sender_id=data.event.broadcaster_user_id,message=f"{uname} redeemed \"{data.event.reward.title}\" for {cost} points, but an error has occurred. Error was logged.")
-
+    
+    if data.event.reward.title == "TTS":
+        try:
+            text_to_speech(rewardtext)
+            await twitch.send_chat_message(broadcaster_id=bid,sender_id=bid,message=f"{uname} redeemed TTS: {rewardtext}")
+        except Exception as e:
+            print (e)
+            await twitch.send_chat_message(broadcaster_id=bid,sender_id=bid,message=f"{uname} redeemed TTS: {rewardtext} but it failed. Check the logs.")
+            
         
 async def on_chat(data:ChannelChatMessageEvent):
     # This happens when someone sends any text message in chat. 
