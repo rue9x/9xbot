@@ -19,12 +19,18 @@ To use the 9xbot Twitch bot, follow these steps:
     cd 9xbot
     ```
 
+4a. OPTIONAL: Set up a venv:
+    ```
+    py -m venv venv
+    activate
+    ```
+    
 5. Install the required dependencies: Run the following command to install the necessary Python packages:
     ```
     pip install -r requirements.txt
     ```
     NOTE: A custom version of playsound is used. Make sure you use requirements.txt!
-    
+
 6. Configure the bot: Open the `.env` file in a text editor and update the required settings -- Client Secret, Client ID, Redirect_URI. User tokens will be generated on the fly.
 
 7. Run the bot: Start the bot by running the following command:
