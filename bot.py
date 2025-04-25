@@ -5,6 +5,7 @@ from twitchAPI.object.eventsub import ChannelFollowEvent, ChannelPointsAutomatic
 from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.type import AuthScope
 from twitchAPI.chat import Chat,EventData,ChatMessage,ChatSub,ChatCommand
+from gtts import gTTS
 
 import asyncio
 import os
@@ -79,11 +80,21 @@ soundalerts = {
     "Ever drink Bailey's from a shoe?" : sound_folder+"old-gregg-drunk-baileys-from-a-shoe.mp3",
     "Hello Mario" : sound_folder+"hello-mario-audiotrimmer.mp3",
     "Metal Clang" : sound_folder+"metal-pipe-clang.mp3",
-    "HERE WE GAAAAAAAH" : sound_folder+"here-we-go_1.mp3"
+    "HERE WE GAAAAAAAH" : sound_folder+"here-we-go_1.mp3",
+    "Soup Crimp": sound_folder+"soup.mp3",
+    "Super Mario Shart": sound_folder+"super-mario-shart.mp3"
 }
 '''
 Actual script stuff starts here.
 '''
+
+
+def text_to_speech(text):
+    tts = gTTS(text=text, lang=lang)
+    audio_file = "./speech.mp3"
+    tts.save(audio_file)
+    sound(audio_file,block=False)
+    os.remove(audio_file)
 
 async def command_handler(data):
     # This is where you can handle commands. 
