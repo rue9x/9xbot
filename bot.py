@@ -49,6 +49,11 @@ REDIRECT_URI = os.getenv('REDIRECT_URI')
 APP_ID = CLIENT_ID
 APP_SECRET = CLIENT_SECRET
 
+
+config = load_config("config.json")
+soundalerts = load_config("soundalerts.json")
+command_indicator=config["command_indicator"]
+
 # These are the scopes for the bot. You'll need to add more depending on what the bot needs to be able to do with twitch.
 TARGET_SCOPES = [
     AuthScope.MODERATOR_READ_FOLLOWERS,
@@ -74,35 +79,15 @@ MAGENTA = ANSI_COLORS['magenta']
 CYAN = ANSI_COLORS['cyan']
 WHITE = ANSI_COLORS['white']
 
-
-#TODO: Add this to config.
-command_indicator="!"  # This is the character that indicates a command. You can change it to whatever you want.
-
-# Some rue stuff -- Note, playsound supports mp3, midi and wav. TODO: Config file this.
-soundalerts = {
-    "OOF" : sound_folder+"sm64_mario_oof.mp3",
-    "Easy now fuzzy little man peach" : sound_folder+"easy-now-fuzzy-lil-manpeach.mp3",
-    "OOMF" : sound_folder+"super-mario-64-thwomp-sound-online-audio-converter.mp3",
-    "HA HA HA HA HA HA HA HAAAAA" : sound_folder+"final-fantasy-x-laugh.mp3",
-    "Mama Luigi" : sound_folder+"mama-luigi.mp3",
-    "MAMA F-R" : sound_folder+"mama-f-cker_fOf0vFm.mp3",
-    "Ever drink Bailey's from a shoe?" : sound_folder+"old-gregg-drunk-baileys-from-a-shoe.mp3",
-    "Hello Mario" : sound_folder+"hello-mario-audiotrimmer.mp3",
-    "Metal Clang" : sound_folder+"metal-pipe-clang.mp3",
-    "HERE WE GAAAAAAAH" : sound_folder+"here-we-go_1.mp3",
-    "Soup Crimp": sound_folder+"soup.mp3",
-    "Super Mario Shart": sound_folder+"super-mario-shart.mp3"
-}
 '''
 Actual script stuff starts here.
 '''
 
-#default_sound_device = 13
-default_sound_device = 'CABLE Input VB-Audio Virtual Cable Windows DirectSound'.lower() 
-#TODO: Add this to config.
+default_sound_device = config["default_sound_device"]
 
 
 def get_sound_devices():
+    # If you ever need to figure out what sound devices are available, run this function.
     print (sd.query_devices())
 
 def sound(fn,block=False,device=default_sound_device):
@@ -159,7 +144,7 @@ async def on_custom_redeem(data: ChannelPointsCustomRewardRedemptionAddEvent):
     # Simple channel point sound alert system.
     if data.event.reward.title in soundalerts:
         try:
-            sound(soundalerts[data.event.reward.title],block=False)
+            sound(sound_folder+soundalerts[data.event.reward.title],block=False)
             await twitch.send_chat_message(broadcaster_id=data.event.broadcaster_user_id,sender_id=data.event.broadcaster_user_id,message=f"{uname} redeemed \"{data.event.reward.title}\" for {cost} points!")
         except Exception as e:
             print (f"{RED}Error playing sound: {e}{RESET}")
