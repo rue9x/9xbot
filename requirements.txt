@@ -1,4 +1,5 @@
 gTTS==2.5.0
-playsound @ git+https://github.com/rue9x/playsound_async_fix
 python-dotenv==1.1.0
+sounddevice==0.4.6
+soundfile==0.12.1
 twitchAPI==4.4.0

@@ -30,7 +30,6 @@ To use the 9xbot Twitch bot, follow these steps:
     pip install wheel
     pip install -r requirements.txt
     ```
-    NOTE: A custom version of playsound is used. Make sure you use requirements.txt!
 
 6. Configure the bot: Open the `.env` file in a text editor and update the required settings -- Client Secret, Client ID, Redirect_URI. User tokens will be generated on the fly.
 
@@ -42,3 +41,6 @@ To use the 9xbot Twitch bot, follow these steps:
 8. A browser window should pop up asking you to log into twitch. This lets the bot act as you in your channel. It should only occur on first launch and when the token is lost.
 
 That's it! The 9xbot Twitch bot should now be up and running. You can customize its behavior by modifying the code in the `bot.py` file.
+
+
+#TODO: Add documentation about sound device choice.

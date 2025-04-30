@@ -11,8 +11,12 @@ import asyncio
 import os
 import json
 from dotenv import load_dotenv
-from playsound import playsound as sound # CUSTOM version of playsound that fixes the block=False issue. 
+#from playsound import playsound as sound # CUSTOM version of playsound that fixes the block=False issue. 
+import sounddevice as sd
+import soundfile as sf
 
+from os import system
+system("title " + "9XBot")
 
 sound_folder="C:\\twitchstuff\\sfx\\"
 def load_config(path):
@@ -32,6 +36,10 @@ def setup_ansi(cfg="color_constants.json"):
         ANSI_COLORS[key] = value.replace("\\033", "\033")  # Correct escape sequence
     return ANSI_COLORS
 
+
+
+
+
 # Load the environment variables from the .env file (separate from config loading because .env files are more common for secrets)
 load_dotenv()
 CLIENT_ID = os.getenv('CLIENT_ID')
@@ -41,8 +49,7 @@ REDIRECT_URI = os.getenv('REDIRECT_URI')
 APP_ID = CLIENT_ID
 APP_SECRET = CLIENT_SECRET
 
-
-# This is the scope. You'll need to add more depending on what the bot needs to be able to do with twitch.
+# These are the scopes for the bot. You'll need to add more depending on what the bot needs to be able to do with twitch.
 TARGET_SCOPES = [
     AuthScope.MODERATOR_READ_FOLLOWERS,
     AuthScope.CHANNEL_READ_REDEMPTIONS,
@@ -67,6 +74,8 @@ MAGENTA = ANSI_COLORS['magenta']
 CYAN = ANSI_COLORS['cyan']
 WHITE = ANSI_COLORS['white']
 
+
+#TODO: Add this to config.
 command_indicator="!"  # This is the character that indicates a command. You can change it to whatever you want.
 
 # Some rue stuff -- Note, playsound supports mp3, midi and wav. TODO: Config file this.
@@ -88,6 +97,21 @@ soundalerts = {
 Actual script stuff starts here.
 '''
 
+#default_sound_device = 13
+default_sound_device = 'CABLE Input VB-Audio Virtual Cable Windows DirectSound'.lower() 
+#TODO: Add this to config.
+
+
+def get_sound_devices():
+    print (sd.query_devices())
+
+def sound(fn,block=False,device=default_sound_device):
+    # This plays audio to a specific device, which is nice for OBS. 
+    sd.default.device=default_sound_device
+    d, fs = sf.read(fn)
+    sd.play(d,fs)
+    if block==True:
+        sd.wait()
 
 def text_to_speech(text):
     tts = gTTS(text=text, lang='ja',tld='us',slow=False)
@@ -111,7 +135,6 @@ async def command_handler(data):
         await twitch.send_chat_message(broadcaster_id=bid,sender_id=bid,message="Test sound played.")
         pass
     '''
-
 
 async def on_follow(data: ChannelFollowEvent):
     # This happens when someone follows the channel.
