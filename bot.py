@@ -18,7 +18,7 @@ import soundfile as sf
 from os import system
 system("title " + "9XBot")
 
-sound_folder="C:\\twitchstuff\\sfx\\"
+
 def load_config(path):
     # This is Rue's ez json loader, because he likes using JSON for configs. It'll return the JSON as a dict.
     if not os.path.exists(path):
@@ -50,9 +50,11 @@ APP_ID = CLIENT_ID
 APP_SECRET = CLIENT_SECRET
 
 
-config = load_config("config.json")
-soundalerts = load_config("soundalerts.json")
-command_indicator=config["command_indicator"]
+config = load_config("config.json") # General config.
+soundalerts = load_config("soundalerts.json") # Sound alert definitions
+command_indicator=config["command_indicator"] # The character that indicates a command. In the config file.
+sound_folder=config["sound_folder"] # The folder where the sound files are stored. Prepends to sound alerts. In the config file.
+default_sound_device = config["default_sound_device"]  # The default sound device to play sounds to. Use get_sound_devices function to find the device ID/name if you can't find it.
 
 # These are the scopes for the bot. You'll need to add more depending on what the bot needs to be able to do with twitch.
 TARGET_SCOPES = [
@@ -82,10 +84,6 @@ WHITE = ANSI_COLORS['white']
 '''
 Actual script stuff starts here.
 '''
-
-default_sound_device = config["default_sound_device"]
-
-
 def get_sound_devices():
     # If you ever need to figure out what sound devices are available, run this function.
     print (sd.query_devices())

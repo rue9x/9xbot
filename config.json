@@ -1,4 +1,5 @@
 {
     "command_indicator": "!",
-    "default_sound_device": "CABLE Input VB-Audio Virtual Cable Windows DirectSound"
+    "default_sound_device": "CABLE Input VB-Audio Virtual Cable Windows DirectSound",
+    "sound_folder": "C:\\twitchstuff\\sfx\\"
 }
