@@ -21,23 +21,8 @@ import soundfile as sf
 import platform
 from pathlib import Path
 
-# ───── OS DETECTION ─────
-IS_WINDOWS = platform.system() == "Windows"
-IS_LINUX = platform.system() == "Linux"
+# ─── CONFIG LOADING ───
 
-# ───── FILE PATH SETUP ─────
-if IS_WINDOWS:
-    BASE_ASSET_PATH = Path("C:/twitchstuff")
-    set_title = lambda title: os.system(f"title {title}")
-else:
-    BASE_ASSET_PATH = Path("/home/rue/twitchstuff")
-    set_title = lambda title: print(f"\033]0;{title}\a", end="", flush=True)
-
-gfx_folder = BASE_ASSET_PATH / "gfx"
-sfx_folder = BASE_ASSET_PATH / "sfx"
-sound_folder = sfx_folder
-
-# ───── CONFIG LOADING ─────
 def load_config(path):
     path = Path(path)
     if not path.exists():
@@ -45,13 +30,38 @@ def load_config(path):
     with open(path, "r") as f:
         return json.load(f)
 
-def setup_ansi(cfg="color_constants.json"):
-    ANSI_COLORS = load_config(cfg)
-    for key, value in ANSI_COLORS.items():
-        ANSI_COLORS[key] = value.replace("\\033", "\033")
-    return ANSI_COLORS
+config = load_config("config.json")
+soundalerts = load_config(config["soundalerts_path"])
+ansi_path = config.get("color_constants_path", "color_constants.json")
 
-# ───── ENV SETUP ─────
+# ─── OS DETECTION + FILE PATHS ───
+
+IS_WINDOWS = platform.system() == "Windows"
+IS_LINUX = platform.system() == "Linux"
+
+IS_WINDOWS = platform.system() == "Windows"
+IS_LINUX = platform.system() == "Linux"
+
+if IS_WINDOWS:
+    BASE_ASSET_PATH = Path(config["base_asset_path_windows"])
+    set_title = lambda title: os.system(f"title {title}")
+elif IS_LINUX:
+    BASE_ASSET_PATH = Path(config["base_asset_path_linux"])
+    set_title = lambda title: print(f"\033]0;{title}\a", end="", flush=True)
+else:
+    raise RuntimeError("Unsupported OS: only Windows and Linux are supported.")
+
+gfx_folder = BASE_ASSET_PATH / config["gfx_folder"]
+sfx_folder = BASE_ASSET_PATH / config["sfx_folder"]
+sound_folder = sfx_folder
+
+# ─── TITLE SETUP ───
+set_title = (
+    (lambda title: os.system(f"title {title}")) if IS_WINDOWS
+    else (lambda title: print(f"\033]0;{title}\a", end="", flush=True))
+)
+
+# ─── ENV SETUP ───
 load_dotenv()
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
@@ -59,10 +69,6 @@ REDIRECT_URI = os.getenv('REDIRECT_URI')
 
 APP_ID = CLIENT_ID
 APP_SECRET = CLIENT_SECRET
-
-config = load_config("config.json")
-soundalerts = load_config("soundalerts.json")
-command_indicator = config["command_indicator"]
 
 TARGET_SCOPES = [
     AuthScope.MODERATOR_READ_FOLLOWERS,
@@ -74,7 +80,14 @@ TARGET_SCOPES = [
     AuthScope.USER_WRITE_CHAT
 ]
 
-ANSI_COLORS = setup_ansi("color_constants.json")
+# ─── ANSI COLOR SETUP ───
+def setup_ansi(cfg):
+    ANSI_COLORS = load_config(cfg)
+    for key, value in ANSI_COLORS.items():
+        ANSI_COLORS[key] = value.replace("\\033", "\033")
+    return ANSI_COLORS
+
+ANSI_COLORS = setup_ansi(ansi_path)
 BOLD = ANSI_COLORS['bold']
 UNDERLINE = ANSI_COLORS['underline']
 RESET = ANSI_COLORS['reset']
@@ -86,13 +99,16 @@ MAGENTA = ANSI_COLORS['magenta']
 CYAN = ANSI_COLORS['cyan']
 WHITE = ANSI_COLORS['white']
 
+command_indicator = config["command_indicator"]
 default_sound_device = config["default_sound_device"]
+
 set_title("9XBot")
 
-# ───── UTILITY FUNCTIONS ─────
+# ─── UTILITY FUNCTIONS ───
 def get_sound_devices():
     print(sd.query_devices())
 get_sound_devices()
+
 def sound(fn, block=False, device=default_sound_device):
     fn = str(fn)
     sd.default.device = device
@@ -103,21 +119,21 @@ def sound(fn, block=False, device=default_sound_device):
 
 def text_to_speech(text):
     tts = gTTS(text=text, lang='ja', tld='us', slow=False)
-    audio_file = "./speech.mp3"
+    audio_file = config["tts_temp_path"]
     tts.save(audio_file)
     sound(audio_file, block=False)
     os.remove(audio_file)
 
-# ───── EVENT HANDLERS ─────
+# ─── EVENT HANDLERS ───
+
 async def command_handler(data):
     uname = data.event.chatter_user_name
     txt = data.event.message.text
     bid = data.event.broadcaster_user_id
-    # Uncomment and customize this block to handle commands
 
-    if txt == "!test":
-        sound(sound_folder / "grabish.mp3", block=False)
-        await twitch.send_chat_message(broadcaster_id=bid, sender_id=bid, message="Test sound played.")
+    #if txt == "!test":
+    #    sound(sound_folder / "grabish.mp3", block=False)
+    #    await twitch.send_chat_message(broadcaster_id=bid, sender_id=bid, message="Test sound played.")
 
 async def on_follow(data: ChannelFollowEvent):
     print(f'{data.event.user_name} now follows {data.event.broadcaster_user_name}!')
@@ -157,7 +173,8 @@ async def on_chat(data: ChannelChatMessageEvent):
     if txt.startswith(command_indicator):
         await command_handler(data)
 
-# ───── MAIN BOT LOOP ─────
+# ─── MAIN BOT LOOP ───
+
 async def botloop():
     global twitch
     global helper
@@ -183,6 +200,6 @@ async def botloop():
         await eventsub.stop()
         await twitch.close()
 
-# ───── RUN ─────
+# ─── RUN ───
 if __name__ == "__main__":
     asyncio.run(botloop())

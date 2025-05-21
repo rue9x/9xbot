@@ -186,3 +186,12 @@ user_token.json
 *.mp3/
 /*.MP3/
 /*.mp3/
+
+/gitkey
+/gitkey.pub
+gitkey
+gitkey.pub
+gitkey/
+gitkey.pub/
+
+
