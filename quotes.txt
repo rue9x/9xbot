@@ -1,5 +1,0 @@
-Rue9X: First quote, bitches! :O
-Rue9X: \x1b[31mThis should not be red in the file\x1b[0m
-Rue9X: Here's a quote\nwith a newline and \x00 some weird stuff
-Rue9X: $(rm -rf /) is not a good idea
-Rue9X: This is the first quote. :O
