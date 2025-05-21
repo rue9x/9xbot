@@ -7,5 +7,6 @@
   "sfx_folder": "sfx",
   "color_constants_path": "color_constants.json",
   "soundalerts_path": "soundalerts.json",
-  "tts_temp_file": "./speech.mp3"
+  "tts_temp_file": "./speech.mp3",
+  "quote_file": "./quotes.txt"
 }

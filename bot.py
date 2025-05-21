@@ -20,6 +20,8 @@ import sounddevice as sd
 import soundfile as sf
 import platform
 from pathlib import Path
+import random
+import re
 
 # ─── CONFIG LOADING ───
 
@@ -54,6 +56,7 @@ else:
 gfx_folder = BASE_ASSET_PATH / config["gfx_folder"]
 sfx_folder = BASE_ASSET_PATH / config["sfx_folder"]
 sound_folder = sfx_folder
+quote_file = BASE_ASSET_PATH / config["quote_file"]
 
 # ─── TITLE SETUP ───
 set_title = (
@@ -127,13 +130,98 @@ def text_to_speech(text):
 # ─── EVENT HANDLERS ───
 
 async def command_handler(data):
+
+    def sanitize_quote(text: str) -> str:
+        # Remove ANSI escape codes
+        text = re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
+        # Remove newlines and non-printables except basic punctuation
+        text = re.sub(r'[^\x20-\x7E]+', ' ', text)
+        return text.strip()
+
+    def delete_quote(index: int, file_path=quote_file) -> str:
+        file_path = Path(file_path)
+        if not file_path.exists():
+            return "No quotes to delete."
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            quotes = f.readlines()
+
+        if index < 1 or index > len(quotes):
+            return f"Invalid quote number. Use !quote to see how many there are."
+
+        removed = quotes.pop(index - 1)
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.writelines(quotes)
+
+        return f"Deleted quote #{index}: {removed.strip()}"
+
+    def get_random_quote(file_path=quote_file) -> str:
+        print (file_path)
+        file_path = Path(file_path)
+        if not file_path.exists():
+            return "No quotes available."
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            quotes = f.readlines()
+
+        if not quotes:
+            return "No quotes available."
+
+        index = random.randint(0, len(quotes) - 1)
+        quote = quotes[index].strip()
+        return f"[#{index + 1}] {quote}"
+
+    def add_quote(username: str, quote_text: str, quote_file: quote_file):
+        # Strip ANSI codes and unwanted characters
+        ansi_escape = re.compile(r'(?:\x1B[@-_][0-?]*[ -/]*[@-~])')
+        cleaned_text = ansi_escape.sub('', quote_text)
+        cleaned_text = cleaned_text.strip()
+
+        if not cleaned_text:
+            raise ValueError("Quote is empty after cleaning.")
+
+        full_quote = f"{username}: {cleaned_text}"
+
+        with open(quote_file, "a", encoding="utf-8") as f:
+            f.write(full_quote + "\n")
+
+
     uname = data.event.chatter_user_name
     txt = data.event.message.text
     bid = data.event.broadcaster_user_id
 
-    #if txt == "!test":
-    #    sound(sound_folder / "grabish.mp3", block=False)
-    #    await twitch.send_chat_message(broadcaster_id=bid, sender_id=bid, message="Test sound played.")
+    parts = txt.strip().split(" ", 1)
+    command = parts[0].lower()
+    args = parts[1].strip() if len(parts) > 1 else ""
+
+    if txt.startswith("!addquote"):
+        parts = txt.split(maxsplit=1)
+        if len(parts) < 2:
+            await twitch.send_chat_message(broadcaster_id=bid, sender_id=bid, message="Usage: !addquote <quote text>")
+            return
+
+        try:
+            add_quote(uname, parts[1], Path(quote_file))
+            await twitch.send_chat_message(broadcaster_id=bid, sender_id=bid, message="Quote added.")
+        except Exception as e:
+            await twitch.send_chat_message(broadcaster_id=bid, sender_id=bid, message=f"Error adding quote: {e}")
+
+    elif txt == "!quote":
+        quote = get_random_quote()
+        await twitch.send_chat_message(broadcaster_id=bid, sender_id=bid, message=quote)
+
+    elif txt.startswith("!delquote"):
+        try:
+            parts = txt.split()
+            if len(parts) != 2:
+                raise ValueError
+            index = int(parts[1])
+            msg = delete_quote(index)
+        except ValueError:
+            msg = "Usage: !delquote [quote number]"
+
+        await twitch.send_chat_message(broadcaster_id=bid, sender_id=bid, message=msg)
 
 async def on_follow(data: ChannelFollowEvent):
     print(f'{data.event.user_name} now follows {data.event.broadcaster_user_name}!')
