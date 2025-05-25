@@ -1,6 +1,6 @@
 {
   "command_indicator": "!",
-  "default_sound_device": "Your Output Device",
+  "default_sound_device": "pipewire",
   "base_asset_path_windows": "C:/twitchstuff",
   "base_asset_path_linux": "/home/rue/twitchstuff",
   "gfx_folder": "gfx",

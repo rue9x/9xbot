@@ -122,7 +122,7 @@ def sound(fn, block=False, device=default_sound_device):
 
 def text_to_speech(text):
     tts = gTTS(text=text, lang='ja', tld='us', slow=False)
-    audio_file = config["tts_temp_path"]
+    audio_file = config["tts_temp_file"]
     tts.save(audio_file)
     sound(audio_file, block=False)
     os.remove(audio_file)
@@ -181,7 +181,7 @@ async def command_handler(data):
         if not cleaned_text:
             raise ValueError("Quote is empty after cleaning.")
 
-        full_quote = f"{username}: {cleaned_text}"
+        full_quote = f"{cleaned_text}"
 
         with open(quote_file, "a", encoding="utf-8") as f:
             f.write(full_quote + "\n")
