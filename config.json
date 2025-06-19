@@ -1,7 +1,7 @@
 {
   "command_indicator": "!",
-  "default_sound_device": "pipewire",
-  "base_asset_path_windows": "C:/twitchstuff",
+  "default_sound_device": "Voicemeeter AUX Input (VB-Audio Voicemeeter VAIO), Windows DirectSound",
+  "base_asset_path_windows": "C:/users/ruela/twitchstuff",
   "base_asset_path_linux": "/home/rue/twitchstuff",
   "gfx_folder": "gfx",
   "sfx_folder": "sfx",
