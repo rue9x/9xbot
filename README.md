@@ -49,6 +49,7 @@ Your default_sound_device is the device you want sounds played through. When you
 Your base_asset_path_(OS) should be a folder containing a folder for graphics, and a folder for sounds. 
 
 Example:
+```
 {
   "command_indicator": "!",
   "default_sound_device": "Voicemeeter AUX Input (VB-Audio Voicemeeter VAIO), Windows DirectSound",
@@ -61,7 +62,7 @@ Example:
   "tts_temp_file": "./speech.mp3",
   "quote_file": "./quotes.txt"
 }
-
+```
 
 
 That's it! The 9xbot Twitch bot should now be up and running. You can customize its behavior by modifying the code in the `bot.py` file.
