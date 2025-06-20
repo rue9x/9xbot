@@ -11,6 +11,7 @@ from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.type import AuthScope
 from twitchAPI.chat import Chat, EventData, ChatMessage, ChatSub, ChatCommand
 from gtts import gTTS
+import random
 
 import asyncio
 import os
@@ -240,7 +241,16 @@ async def on_custom_redeem(data: ChannelPointsCustomRewardRedemptionAddEvent):
 
     if reward in soundalerts:
         try:
-            sound(sound_folder / soundalerts[reward], block=False)
+            if "Clang" in reward:
+                coinflip = random.randint(1,2)
+                if coinflip == 2:
+                    print ("Coinflip was heads. Playing alternative sound.")
+                    sound(sound_folder / 'metal-clang-no.mp3', block=False)
+                else:                   
+                    print ("Coin flip was tails. Primary sound plays.")
+                    sound(sound_folder / soundalerts[reward], block=False)
+            else:
+                sound(sound_folder / soundalerts[reward], block=False)
             await twitch.send_chat_message(broadcaster_id=bid, sender_id=bid, message=f"{uname} redeemed \"{reward}\" for {cost} points!")
         except Exception as e:
             print(f"{RED}Error playing sound: {e}{RESET}")
